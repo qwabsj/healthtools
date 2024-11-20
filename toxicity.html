@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prostate Cancer Metastasis Prediction App</title>
+    <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f2f5, #dde1e7);
+            color: #333;
+        }
+
+        .calculator {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .calculator h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #4A90E2;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            border-color: #4A90E2;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            background-color: #4A90E2;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .calculate-btn:hover {
+            background-color: #357ABD;
+        }
+
+        /* Modal overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+
+        /* Modal content */
+        .modal {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 300px;
+            width: 100%;
+            text-align: center;
+            transform: scale(0.8);
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .modal.active {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .modal h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #4A90E2;
+        }
+
+        .modal p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .close-btn {
+            background: #4A90E2;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="calculator">
+    <h2>Toxicity Risk Prediction</h2>
+    <div class="form-group">
+        <label for="comorbs">Comorbidities (0 = None, 1 = Present):</label>
+        <input type="number" id="comorbs" value="0">
+    </div>
+    <div class="form-group">
+        <label for="act">Activity Level (0 = Sedentary, 1 = Active):</label>
+        <input type="number" id="act" value="1">
+    </div>
+    <div class="form-group">
+        <label for="weight">Weight (kg):</label>
+        <input type="number" id="weight" value="75">
+    </div>
+    
+
+    <button class="calculate-btn" onclick="predictRisk()">Predict Toxicity Risk</button>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="result-modal">
+        <h3>Prediction Results</h3>
+        <p id="prediction-result"></p>
+        <button class="close-btn" onclick="closeModal()">Close</button>
+    </div>
+</div>
+
+<script>
+    function predictRisk() {
+        const comorbs = parseFloat(document.getElementById("comorbs").value);
+        const act = parseFloat(document.getElementById("act").value);
+        const weight = parseFloat(document.getElementById("weight").value);
+        // Collect additional input values...
+
+        const intercept = 2.357;
+        const coef = {
+            comorbs: -1.305, age_cd: -0.518, eth_cd: -0.050, ses: -0.156, act: 0.385,
+            trd: -0.074, weight: 0.012, height: 0.427, bmi_cd: -0.059, lin_cd: 0.351,
+            pnd_cd: -0.120, fmh: -0.054, alc: -0.698, tbc: 1.168, loc_cd: -0.069, dre_l: 0.695
+        };
+
+        let log_odds = intercept + coef.comorbs * comorbs + coef.act * act + coef.weight * weight;
+        // Add other variables to log_odds calculation...
+
+        const probability = 1 / (1 + Math.exp(-log_odds));
+        displayResult(probability);
+    }
+
+    function displayResult(probability) {
+        const resultText = `Predicted Probability of Toxicity Risk: ${probability.toFixed(4)}`;
+        document.getElementById("prediction-result").innerText = resultText;
+        document.getElementById("modal-overlay").style.display = "flex";
+        document.getElementById("result-modal").classList.add("active");
+    }
+
+    function closeModal() {
+        document.getElementById("modal-overlay").style.display = "none";
+        document.getElementById("result-modal").classList.remove("active");
+    }
+</script>
+
+</body>
+</html>

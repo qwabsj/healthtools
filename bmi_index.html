@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HealthWise: Your Wellness Companion</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: #333;
+        }
+        .app-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 500px;
+        }
+        .app-container h1 {
+            color: #4A90E2;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .calculate-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            background-color: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .calculate-btn:hover {
+            background-color: #357ABD;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1>HealthWise: Your Wellness Companion</h1>
+        <div class="form-group">
+            <label for="weight">Weight (kg):</label>
+            <input type="number" id="weight" placeholder="Enter your weight">
+        </div>
+        <div class="form-group">
+            <label for="height">Height (m):</label>
+            <input type="number" id="height" placeholder="Enter your height">
+        </div>
+        <div class="form-group">
+            <label for="age">Age (years):</label>
+            <input type="number" id="age" placeholder="Enter your age">
+        </div>
+        <div class="form-group">
+            <label for="meal">Choose a Meal:</label>
+            <select id="meal">
+                <option>Grilled Chicken Salad</option>
+                <option>Quinoa Bowl</option>
+                <option>Oatmeal</option>
+                <option>Vegetable Stir-fry</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="exercise">Choose an Exercise:</label>
+            <select id="exercise">
+                <option>30 min Walk</option>
+                <option>Yoga</option>
+                <option>Strength Training</option>
+                <option>Cycling</option>
+            </select>
+        </div>
+        <button class="calculate-btn" onclick="calculateMetrics()">Calculate</button>
+        
+        <div id="results" class="result"></div>
+        <div id="mealInfo" class="result"></div>
+        <div id="exerciseInfo" class="result"></div>
+        <div id="advice" class="result"></div>
+        <div id="labTests" class="result"></div>
+        <div id="fluidIntake" class="result"></div>
+    </div>
+
+    <script>
+        function calculateMetrics() {
+            const weight = parseFloat(document.getElementById("weight").value);
+            const height = parseFloat(document.getElementById("height").value);
+            const age = parseInt(document.getElementById("age").value);
+            const meal = document.getElementById("meal").value;
+            const exercise = document.getElementById("exercise").value;
+
+            if (isNaN(weight) || isNaN(height) || isNaN(age)) {
+                document.getElementById("results").textContent = "Please enter valid numeric values.";
+                return;
+            }
+
+            // BMI Calculation
+            const BMI = weight / (height ** 2);
+            let BMI_Category = BMI < 18.5 ? "Underweight" :
+                              BMI < 24.9 ? "Normal weight" :
+                              BMI < 29.9 ? "Overweight" : "Obese";
+            let deviations = BMI >= 25 ? "Consider weight loss for better health." :
+                              BMI < 18.5 ? "Consider gaining weight for better health." : "";
+
+            document.getElementById("results").textContent = `BMI: ${BMI.toFixed(2)} kg/m² - ${BMI_Category}\n${deviations}`;
+
+            // Meal Info
+            let mealInfo = `Selected Meal: ${meal}\nCalories: ${meal === "Grilled Chicken Salad" ? 350 :
+                meal === "Quinoa Bowl" ? 450 : meal === "Oatmeal" ? 300 : 400}`;
+            document.getElementById("mealInfo").textContent = mealInfo;
+
+            // Exercise Info
+            let exerciseCalories = exercise === "30 min Walk" ? 150 :
+                                   exercise === "Yoga" ? 200 :
+                                   exercise === "Strength Training" ? 300 : 250;
+            document.getElementById("exerciseInfo").textContent = `Selected Exercise: ${exercise}\nCalories Burned: ${exerciseCalories}`;
+
+            // Advice
+            let adviceText = BMI >= 25 ? "Balanced diet and exercise recommended." : "Keep up with a balanced diet.";
+            document.getElementById("advice").textContent = adviceText;
+
+            // Fluid Intake Recommendation
+            const fluidIntake = (weight * 30) + 1000;
+            document.getElementById("fluidIntake").textContent = `Recommended daily fluid intake: ${fluidIntake} ml`;
+        }
+    </script>
+</body>
+</html>

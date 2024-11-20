@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snakes and Ladders</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f7f7f7;
+        }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(10, 50px);
+            margin: 20px auto;
+            width: 500px;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            border: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .player {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Snakes and Ladders</h1>
+    <div id="board"></div>
+    <button onclick="rollDice()">Roll Dice</button>
+    <p id="dice-result">Dice Roll: </p>
+    <p id="player-position">Player Position: 1</p>
+    <p id="question"></p>
+</body>
+<script>
+    // Create the game board
+    const board = document.getElementById('board');
+    for (let i = 100; i > 0; i--) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.textContent = i;
+        board.appendChild(cell);
+    }
+
+    // Roll Dice Function
+    async function rollDice() {
+        const response = await fetch('/roll-dice');
+        const data = await response.json();
+
+        // Update UI with dice result and player position
+        document.getElementById('dice-result').textContent = `Dice Roll: ${data.dice}`;
+        document.getElementById('player-position').textContent = `Player Position: ${data.position}`;
+
+        // Display question if one is returned
+        if (data.question) {
+            document.getElementById('question').textContent = `Question: ${data.question}`;
+        } else {
+            document.getElementById('question').textContent = '';
+        }
+    }
+</script>
+</html>

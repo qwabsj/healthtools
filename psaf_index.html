@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PSAF App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f2f5, #dde1e7);
+            color: #333;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            width: 600px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+        .field-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        input, select {
+            width: calc(100% - 130px);
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>PSAF</h2>
+    <form id="prediction-form">
+
+        <!-- Age -->
+        <div class="field-group">
+            <label for="age">Age:</label>
+            <input type="number" id="age" value="50">
+        </div>
+
+        <!-- Ethnicity -->
+        <div class="field-group">
+            <label for="ethnicity">Ethnicity:</label>
+            <select id="ethnicity">
+                <option value="1">Akan</option>
+                <option value="2">Ga</option>
+                <option value="3">Ewe</option>
+                <option value="4">Northern</option>
+                <option value="5">Other West African</option>
+                <option value="6">Other Non-West African</option>
+                <option value="7">European/Asian/American</option>
+            </select>
+        </div>
+
+        <!-- Socioeconomic Status -->
+        <div class="field-group">
+            <label for="ses">Socioeconomic Status:</label>
+            <select id="ses">
+                <option value="1">Low SES</option>
+                <option value="2">High SES</option>
+                <option value="3">Retired</option>
+                <option value="4">Not Stated</option>
+            </select>
+        </div>
+
+        <!-- Activity Level -->
+        <div class="field-group">
+            <label for="act">Activity Level:</label>
+            <select id="act">
+                <option value="1">Sedentary</option>
+                <option value="2">Non-Sedentary</option>
+                <option value="3">Retired/NA</option>
+            </select>
+        </div>
+
+        <!-- Weight -->
+        <div class="field-group">
+            <label for="weight">Weight (kg):</label>
+            <input type="number" id="weight" value="70" step="0.1">
+        </div>
+
+        <!-- Height -->
+        <div class="field-group">
+            <label for="height">Height (m):</label>
+            <input type="number" id="height" value="1.75" step="0.01">
+        </div>
+
+        <!-- Additional Inputs -->
+        <!-- Family History -->
+        <div class="field-group">
+            <label for="fmh">Family History:</label>
+            <select id="fmh">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+        </div>
+
+        <!-- Alcohol Use -->
+        <div class="field-group">
+            <label for="alc">Alcohol Use:</label>
+            <select id="alc">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+        </div>
+
+        <!-- Tobacco Use -->
+        <div class="field-group">
+            <label for="tbc">Tobacco Use:</label>
+            <select id="tbc">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+        </div>
+
+        <!-- PSA Diagnosis -->
+        <div class="field-group">
+            <label for="psaDiagnosis">PSA at Diagnosis:</label>
+            <input type="number" id="psaDiagnosis" value="5" step="0.1">
+        </div>
+
+        <button type="button" class="button" onclick="calculatePrediction()">Predict</button>
+
+        <div class="result" id="result"></div>
+    </form>
+</div>
+
+<script>
+    function calculatePrediction() {
+        const age = parseFloat(document.getElementById("age").value);
+        const ethnicity = parseInt(document.getElementById("ethnicity").value);
+        const ses = parseInt(document.getElementById("ses").value);
+        const act = parseInt(document.getElementById("act").value);
+        const weight = parseFloat(document.getElementById("weight").value);
+        const height = parseFloat(document.getElementById("height").value);
+        const fmh = parseInt(document.getElementById("fmh").value);
+        const alc = parseInt(document.getElementById("alc").value);
+        const tbc = parseInt(document.getElementById("tbc").value);
+        const psaDiagnosis = parseFloat(document.getElementById("psaDiagnosis").value);
+
+        const bmi = weight / (height ** 2);
+        const logOdds = 1.3040 + (0.1026 * age) + (0.0060 * ethnicity) + (-0.2003 * ses) + (0.0890 * act) +
+                        (0.0100 * weight) + (-1.7798 * height) + (-0.1927 * bmi) + (-0.1924 * fmh) + 
+                        (0.1090 * alc) + (0.3973 * tbc) + (0.0001 * psaDiagnosis);
+
+        const probability = 1 / (1 + Math.exp(-logOdds));
+        const prediction = probability >= 0.52 ? "Higher likelihood of PSA resolution at 50%" : "Lower likelihood of PSA resolution at 50%";
+
+        document.getElementById("result").innerHTML = `Probability: ${(probability * 100).toFixed(2)}%<br>Prediction: ${prediction}`;
+    }
+</script>
+
+</body>
+</html>
