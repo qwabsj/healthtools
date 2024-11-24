@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HealthWise: Your Wellness Companion</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Include your existing styles here */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2, h3 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    #results {
+      margin-top: 20px;
+      padding: 10px;
+      background: #e9ecef;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>HealthWise: Your Wellness Companion</h1>
+
+    <form id="health-form">
+      <label for="weight">Weight (kg):</label>
+      <input type="number" id="weight" name="weight" min="1" value="70" required>
+
+      <label for="height">Height (m):</label>
+      <input type="number" id="height" name="height" step="0.01" min="0.1" value="1.75" required>
+
+      <label for="age">Age (years):</label>
+      <input type="number" id="age" name="age" min="1" value="30" required>
+
+      <label for="systolic-bp">Systolic BP (mmHg):</label>
+      <input type="number" id="systolic-bp" name="systolic-bp" min="80" value="120" required>
+
+      <label for="diastolic-bp">Diastolic BP (mmHg):</label>
+      <input type="number" id="diastolic-bp" name="diastolic-bp" min="50" value="80" required>
+
+      <label for="meal-choice">Choose a meal:</label>
+      <select id="meal-choice">
+        <option value="350,Protein-rich">Grilled Chicken Salad</option>
+        <option value="450,High-fiber">Quinoa Bowl</option>
+        <option value="300,Whole grains">Oatmeal</option>
+        <option value="400,Vitamins & minerals">Vegetable Stir-fry</option>
+      </select>
+
+      <label for="exercise-choice">Choose an exercise:</label>
+      <select id="exercise-choice">
+        <option value="30,150">30 min Walk</option>
+        <option value="60,200">Yoga</option>
+        <option value="45,300">Strength Training</option>
+        <option value="40,250">Cycling</option>
+      </select>
+
+      <button type="button" id="calculate-btn">Calculate</button>
+    </form>
+
+    <div id="results">
+      <h2>Results</h2>
+      <p id="bmi-result"></p>
+      <p id="bsa-result"></p>
+      <p id="ibw-result"></p>
+      <p id="weight-deviation"></p>
+      <p id="bp-category"></p>
+      <h3>Meal and Exercise Details</h3>
+      <p id="meal-details"></p>
+      <p id="exercise-details"></p>
+      <h3>Recommendations</h3>
+      <p id="recommendations"></p>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById("calculate-btn").addEventListener("click", () => {
+      const weight = parseFloat(document.getElementById("weight").value);
+      const height = parseFloat(document.getElementById("height").value);
+      const age = parseInt(document.getElementById("age").value);
+      const systolicBP = parseInt(document.getElementById("systolic-bp").value);
+      const diastolicBP = parseInt(document.getElementById("diastolic-bp").value);
+      const mealChoice = document.getElementById("meal-choice").value.split(",");
+      const exerciseChoice = document.getElementById("exercise-choice").value.split(",");
+
+      // BMI Calculation
+      const BMI = weight / (height ** 2);
+      const BMI_Category = BMI < 18.5 ? "Underweight" :
+                           BMI < 24.9 ? "Normal weight" :
+                           BMI < 29.9 ? "Overweight" :
+                           BMI < 39.9 ? "Obese" : "Morbidly obese";
+
+      // BSA Calculation
+      const heightCm = height * 100;
+      const BSA = Math.sqrt((weight * heightCm) / 3600);
+
+      // Ideal Body Weight (IBW)
+      const idealBMI = age < 30 ? 22 : age <= 50 ? 21.5 : 20.5;
+      const IBW = idealBMI * (height ** 2);
+
+      // Weight Deviation
+      const weightDeviation = weight - IBW;
+      const weightDeviationText = weightDeviation > 0 ?
+        `Excess Weight: ${weightDeviation.toFixed(2)} kg. Consider weight loss.` :
+        weightDeviation < 0 ?
+        `Weight Deficit: ${Math.abs(weightDeviation).toFixed(2)} kg. Consider weight gain.` :
+        "Your weight is ideal.";
+
+      // BP Category
+      const bpCategory = systolicBP >= 140 || diastolicBP >= 90 ? "Hypertension Stage 2" :
+                         systolicBP >= 130 || diastolicBP >= 80 ? "Hypertension Stage 1" :
+                         systolicBP >= 120 ? "Elevated" : "Normal";
+      const bpRisk = bpCategory.includes("Hypertension") ? "High risk of becoming hypertensive. Please consult a healthcare provider." :
+                      "No immediate hypertension risk detected. Maintain a healthy lifestyle.";
+
+      // Meal and Exercise Details
+      const mealDetails = `Meal: ${mealChoice[0]} | Calories: ${mealChoice[1]} | Nutrients: ${mealChoice[2]}`;
+      const exerciseDetails = `Exercise: ${exerciseChoice[0]} | Duration: ${exerciseChoice[1]} mins | Calories Burned: ${exerciseChoice[2]}`;
+
+      // Recommendations
+      const recommendations = bpCategory.includes("Hypertension") ?
+        "Reduce sodium intake, exercise regularly, and monitor BP." :
+        "Maintain a balanced diet and regular physical activity to keep BP normal.";
+
+      // Update Results
+      document.getElementById("bmi-result").textContent = `BMI: ${BMI.toFixed(2)} kg/m² - ${BMI_Category}`;
+      document.getElementById("bsa-result").textContent = `BSA: ${BSA.toFixed(2)} m²`;
+      document.getElementById("ibw-result").textContent = `Ideal Body Weight: ${IBW.toFixed(2)} kg`;
+      document.getElementById("weight-deviation").textContent = weightDeviationText;
+      document.getElementById("bp-category").textContent = `BP Category: ${bpCategory}. ${bpRisk}`;
+      document.getElementById("meal-details").textContent = mealDetails;
+      document.getElementById("exercise-details").textContent = exerciseDetails;
+      document.getElementById("recommendations").textContent = recommendations;
+    });
+  </script>
+</body>
+</html>

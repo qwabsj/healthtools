@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prostate Cancer Screening App, GHANA: Obeng et al., 2024</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 20px;
+        }
+        .app-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 48%;
+            max-width: 500px;
+        }
+        h1, h2 {
+            color: #4A90E2;
+            font-size: 22px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .calculate-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 18px;
+            background-color: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .calculate-btn:hover {
+            background-color: #357ABD;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+        #bmi-results {
+            margin-top: 20px;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f9;
+}
+
+.container {
+  max-width: 600px;
+  margin: 20px auto;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2 {
+  text-align: center;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-top: 10px;
+}
+
+input, select, button {
+  margin-top: 5px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+#results {
+  margin-top: 20px;
+  padding: 10px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
+            max-height: 80vh;
+        }
+        .modal-content h3 {
+            margin-top: 0;
+        }
+        .modal-content p {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        .modal-content .close-btn {
+            display: block;
+            margin: 10px auto 0;
+            padding: 10px 20px;
+            background-color: #4A90E2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .modal-content .close-btn:hover {
+            background-color: #357ABD;
+        }
+    </style>
+</head>
+<body>
+    <!-- Prostate Cancer Metastasis Prediction App -->
+    <div class="app-container">
+        <h1>Prostate Cancer Screening App, GHANA: Obeng et al., 2024</h1>
+        <form id="prostate-form">
+            <label for="psa">Prostate-Specific Antigen (PSA) Level:</label>
+            <input type="number" id="psa" placeholder="Enter PSA level" required>
+
+            <label for="bmi_cd">BMI (from BMI Calculator):</label>
+            <input type="text" id="bmi_cd" placeholder="BMI will appear here" readonly>
+
+            <label for="line">Linear Weight-to-Height Ratio (from BMI Calculator):</label>
+            <input type="text" id="line" placeholder="Ratio will appear here" readonly>
+
+            <label for="pond">Ponderal Index (from BMI Calculator):</label>
+            <input type="text" id="pond" placeholder="Index will appear here" readonly>
+
+            <label for="age_cd">Age:</label>
+            <select id="age_cd">
+                <option value="0">Select Age</option>
+                <option value="1"><=44</option>
+                <option value="2">45-54</option>
+                <option value="3">55-64</option>
+                <option value="4">65-74</option>
+                <option value="5">75-84</option>
+                <option value="6">85+</option>
+            </select>
+
+            <label for="mar_cd">Marital Status:</label>
+            <select id="mar_cd">
+                <option value="0">Single</option>
+                <option value="1">Married</option>
+                <option value="2">Divorced/Separated</option>
+                <option value="4">Not Stated</option>
+            </select>
+
+            <label for="eth_cd">Ethnicity:</label>
+            <select id="eth_cd">
+                <option value="1">Akan</option>
+                <option value="2">Ga</option>
+                <option value="3">Ewe</option>
+                <option value="4">Northern</option>
+                <option value="5">Other West African</option>
+                <option value="6">Other Non-West African African</option>
+                <option value="7">European/Asian/American</option>
+            </select>
+
+            <label for="act">Occupational Activity Level:</label>
+            <select id="act">
+                <option value="1">Sedentary</option>
+                <option value="2">Non-sedentary</option>
+                <option value="3">Retired/NA</option>
+            </select>
+
+            <label for="fmh">Family History of Prostate Cancer:</label>
+            <select id="fmh">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+
+            <label for="alc">Alcohol Consumption:</label>
+            <select id="alc">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+
+            <label for="tob">Tobacco Consumption:</label>
+            <select id="tob">
+                <option value="0">No</option>
+                <option value="1">Yes</option>
+            </select>
+
+            <button type="button" class="calculate-btn" onclick="calculateProstateRisk()">Calculate Risk</button>
+        </form>
+        <div id="prostate-results" class="result">
+            <h3>Results</h3>
+            <p id="probability"></p>
+            <p id="diagnosis"></p>
+            <p id="interpretation"></p>
+            <p id="recommendation"></p>
+        </div>
+    </div>
+
+    <!-- BMI Calculator -->
+    <div class="app-container">
+        <h1>BMI & Metrics Calculator</h1>
+        <div class="form-group">
+            <label for="weight">Weight (kg):</label>
+            <input type="number" id="weight" placeholder="Enter your weight">
+        </div>
+        <div class="form-group">
+            <label for="height">Height (m):</label>
+            <input type="number" id="height" placeholder="Enter your height">
+        </div>
+        <button class="calculate-btn" onclick="calculateMetrics()">Calculate Metrics</button>
+        <div id="bmi-results"></div>
+    </div>
+    <!-- Modal for Pop-Up -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2><strong>Prostate Biopsy for High-Risk or Positive Prediction of Prostate Cancer in Ghana</strong></h2>
+            <p>
+                If you've been identified as high-risk or have a positive prediction for prostate cancer through the screening app, a prostate biopsy is a critical next step in confirming the diagnosis and planning your treatment.
+            </p>
+            <p><strong>1. Where Can I Have a Prostate Biopsy in Ghana?</strong></p>
+            <p>Prostate biopsies are performed at major hospitals, including:</p>
+            <ul>
+                <li>Korle-Bu Teaching Hospital (KBTH), Accra</li>
+                <li>Komfo Anokye Teaching Hospital (KATH), Kumasi</li>
+                <li>37 Military Hospital, Accra</li>
+                <li>Private hospitals like Medicare, Nyaho, and The Trust Hospital</li>
+            </ul>
+            <p><strong>2. What Should I Expect During a Prostate Biopsy?</strong></p>
+            <p>The procedure involves taking twelve (12) pieces of prostate tissue samples to be sent to the Pathologist.</p>
+            <ul>
+                <li><strong>Pre-biopsy Preparation:</strong> Antibiotics and stopping blood-thinners as instructed.</li>
+                <li><strong>During the Procedure:</strong> Ultrasound-guided biopsy under local anesthesia.</li>
+                <li><strong>Post-biopsy Care:</strong> Pain management and monitoring for side effects.</li>
+            </ul>
+            <p><strong>3. Cost of a Prostate Biopsy:</strong> Approximately 100 USD in Ghana.</p>
+            <button class="close-btn" onclick="closeModal()">Close</button>
+            <a href="info.html" target="_blank" class="close-btn">For Full Details, Click</a>
+        </div>
+    </div>
+
+    <script>
+        // BMI & Metrics Calculation
+        function calculateMetrics() {
+            const weight = parseFloat(document.getElementById("weight").value);
+            const height = parseFloat(document.getElementById("height").value);
+
+            if (isNaN(weight) || isNaN(height) || weight <= 0 || height <= 0) {
+                alert("Please enter valid positive numeric values for weight and height.");
+                return;
+            }
+
+            const BMI = weight / (height ** 2);
+            const Linear_W_H_Ratio = weight / height;
+            const Ponderal_Index = weight / (height ** 3);
+
+            document.getElementById("bmi_cd").value = BMI.toFixed(2);
+            document.getElementById("line").value = Linear_W_H_Ratio.toFixed(2);
+            document.getElementById("pond").value = Ponderal_Index.toFixed(2);
+
+            const resultDiv = document.getElementById("bmi-results");
+            resultDiv.innerHTML = `
+                <p>BMI: ${BMI.toFixed(2)} kg/m²</p>
+                <p>Linear Weight-to-Height Ratio: ${Linear_W_H_Ratio.toFixed(2)} kg/m</p>
+                <p>Ponderal Index: ${Ponderal_Index.toFixed(2)} kg/m³</p>
+            `;
+        }
+
+        // Prostate Cancer Risk Calculation
+        function calculateProstateRisk() {
+            const psa = parseFloat(document.getElementById('psa').value);
+            const age_cd = parseInt(document.getElementById('age_cd').value);
+            const mar_cd = parseInt(document.getElementById('mar_cd').value);
+            const eth_cd = parseInt(document.getElementById('eth_cd').value);
+            const act = parseInt(document.getElementById('act').value);
+            const bmi_cd = parseFloat(document.getElementById('bmi_cd').value);
+            const line = parseFloat(document.getElementById('line').value);
+            const pond = parseFloat(document.getElementById('pond').value);
+            const fmh = parseInt(document.getElementById('fmh').value);
+            const alc = parseInt(document.getElementById('alc').value);
+            const tob = parseInt(document.getElementById('tob').value);
+
+            const intercept = -12.809;
+            const beta_age = 0.003;
+            const beta_mar_cd = -0.067;
+            const beta_eth_cd = 0.073;
+            const beta_act = 0.875;
+            const beta_bmi_cd = -0.945;
+            const beta_fmh = -0.314;
+            const beta_alc = 0.399;
+            const beta_tbc = -1.142;
+            const beta_line = 0.203;
+            const beta_pond = 3.946;
+            const beta_psa = 0.002;
+
+            const log_odds = intercept +
+                (beta_age * age_cd) +
+                (beta_mar_cd * mar_cd) +
+                (beta_eth_cd * eth_cd) +
+                (beta_act * act) +
+                (beta_bmi_cd * bmi_cd) +
+                (beta_fmh * fmh) +
+                (beta_alc * alc) +
+                (beta_line * line) +
+                (beta_pond * pond) +
+                (beta_psa * psa);
+
+            const probability = Math.exp(log_odds) / (1 + Math.exp(log_odds));
+            const diagnosis = probability >= 0.4 ? "Positive" : "Negative";
+            const interpretation = probability >= 0.4
+                ? "There is a high likelihood of Prostate Cancer."
+                : "There is a low likelihood of prostate cancer.";
+            const recommendation = probability >= 0.4
+                ? "It is recommended to consult with your Urologist for further evaluation and possible prostate biopsy."
+                : "Regular monitoring is recommended. Have your PSA checked every year on your Birthdays. Adopt a healthy lifestyle.";
+
+            document.getElementById('probability').innerText = `Predicted Probability: ${(probability * 100).toFixed(2)}%`;
+            document.getElementById('diagnosis').innerText = `Diagnosis: ${diagnosis}`;
+            document.getElementById('interpretation').innerText = `Interpretation: ${interpretation}`;
+            document.getElementById('recommendation').innerText = `Recommendation: ${recommendation}`;
+
+            // Show modal for positive diagnosis
+            if (diagnosis === "Positive") {
+                document.getElementById('modal').style.display = 'flex';
+            }
+        }
+
+        // Function to close the modal
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

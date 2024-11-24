@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toxicity Risk Prediction</title>
+    <style>
+      * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #4A90E2;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #4A90E2;
+            color: #fff;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background-color: #357ABD;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f7f7f7;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .output h3 {
+            color: #4A90E2;
+        }
+        .output p {
+            margin-bottom: 10px;
+        }
+
+        /* Modal Styling */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 999; /* Sits on top of other elements */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Enable scrolling if needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Black with opacity */
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%; /* 80% width of the viewport */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    animation: fadeIn 0.5s ease; /* Smooth fade-in effect */
+}
+
+.modal-header {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #4A90E2;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Toxicity Risk Prediction</h1>
+        <form id="toxicity-form">
+            <!-- Add all the fields -->
+            <div class="form-group">
+                <label for="comorbs">Comorbidities (0 = None, 1 = Present):</label>
+                <input type="number" id="comorbs" value="0" min="0" max="1">
+            </div>
+            <div class="form-group">
+                <label for="age_cd">Age Category:</label>
+                <select id="age_cd">
+                    <option value="1">Under 45</option>
+                    <option value="2">45-54</option>
+                    <option value="3">55-64</option>
+                    <option value="4">65-74</option>
+                    <option value="5">75-84</option>
+                    <option value="6">85+</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="eth_cd">Ethnicity Category:</label>
+                <select id="eth_cd">
+                    <option value="1">Akan</option>
+                    <option value="2">Ga</option>
+                    <option value="3">Ewe</option>
+                    <option value="4">Northern</option>
+                    <option value="5">Other West African</option>
+                    <option value="6">Other African</option>
+                    <option value="7">European/Asian/American</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="ses">Socioeconomic Status:</label>
+                <select id="ses">
+                    <option value="1">Low</option>
+                    <option value="2">Medium</option>
+                    <option value="3">High</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="act">Activity Level (0 = Sedentary, 1 = Active):</label>
+                <input type="number" id="act" value="1" min="0" max="1">
+            </div>
+            <div class="form-group">
+                <label for="trd">Traditional Occupation Classification:</label>
+                <select id="trd">
+                    <option value="1">Sedentary</option>
+                    <option value="2">Manual</option>
+                    <option value="3">Sporting</option>
+                </select>
+            </div>
+             <!-- Newly Added Fields -->
+            <div class="form-group">
+                <label for="fmh">Family History of Prostate Cancer:</label>
+                <select id="fmh">
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="alc">Alcohol Use:</label>
+                <select id="alc">
+                    <option value="0">None</option>
+                    <option value="1">Moderate</option>
+                    <option value="2">Heavy</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tbc">Tobacco Use:</label>
+                <select id="tbc">
+                    <option value="0">None</option>
+                    <option value="1">Former</option>
+                    <option value="2">Current</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="dre_l">DRE Localized Disease:</label>
+                <select id="dre_l">
+                    <option value="0">Advanced</option>
+                    <option value="1">Localized</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="hpsa_cd">Highest PSA Value Recorded:</label>
+                <input type="number" id="hpsa_cd" value="5" min="0">
+            </div>
+            <div class="form-group">
+                <label for="natg">Number of Adjuvant Treatment Modalities Given:</label>
+                <input type="number" id="natg" value="1" min="0">
+            </div>
+            <div class="form-group">
+                <label for="tmg">Total Number of Treatment Modalities Given:</label>
+                <input type="number" id="tmg" value="2" min="0">
+            </div>
+            <div class="form-group">
+            <label for="weight">Weight (kg):</label>
+            <input type="number" id="weight" value="75" min="1">
+        </div>
+        <div class="form-group">
+            <label for="height">Height (m):</label>
+            <input type="number" id="height" value="1.75" min="0.1">
+        </div>
+        <div class="bmi-section">
+            <div>
+                <label for="bmi_cd">BMI Category:</label>
+                <select id="bmi_cd" disabled>
+                    <option value="1">Underweight</option>
+                    <option value="2">Normal</option>
+                    <option value="3">Overweight</option>
+                    <option value="4">Obese</option>
+                </select>
+            </div>
+            <div id="bmi-result" class="bmi-result-text"></div>
+        </div>
+        
+            <button type="button" class="btn" id="predict-button">Predict Risk</button>
+        </form>
+       <div class="output" id="output-container" style="display: none;">
+    <!-- Modal -->
+<div id="result-modal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="close-modal">&times;</span>
+        <div class="modal-header">Prediction Results</div>
+        <p id="risk-text"></p>
+        <p id="interpretation-text"></p>
+        <h4>Recommendations for Urologists:</h4>
+        <ul id="uro-recommendations"></ul>
+        <h4>Recommendations for Patients:</h4>
+        <ul id="patient-recommendations"></ul>
+    </div>
+</div>
+
+
+    </div>
+    <script>
+        // Coefficients for logistic regression
+        const coefficients = {
+            intercept: 2.357,
+            comorbs: -1.305,
+            age_cd: -0.518,
+            eth_cd: -0.05,
+            ses: -0.156,
+            act: 0.385,
+            trd: -0.074,
+            weight: 0.012,
+            height: 0.427,
+            bmi_cd: -0.059,
+            hpsa_cd: -0.272
+        };
+
+        // Function to calculate toxicity risk
+        function calculateRisk(inputs) {
+            const logOdds = coefficients.intercept +
+                coefficients.comorbs * inputs.comorbs +
+                coefficients.age_cd * inputs.age_cd +
+                coefficients.eth_cd * inputs.eth_cd +
+                coefficients.ses * inputs.ses +
+                coefficients.act * inputs.act +
+                coefficients.trd * inputs.trd +
+                coefficients.weight * inputs.weight +
+                coefficients.height * inputs.height +
+                coefficients.bmi_cd * inputs.bmi_cd +
+                coefficients.hpsa_cd * inputs.hpsa_cd;
+
+            const probability = 1 / (1 + Math.exp(-logOdds));
+            return probability;
+        }
+
+        // Function to generate recommendations
+        function getRecommendations(risk) {
+            if (risk < 0.2) {
+                return "Low risk of toxicity. Routine surveillance and healthy lifestyle are recommended.";
+            } else if (risk < 0.5) {
+                return "Moderate risk of toxicity. Enhanced monitoring and lifestyle counseling are recommended.";
+            } else {
+                return "High risk of toxicity. Aggressive monitoring and immediate treatment discussions are required.";
+            }
+        }
+
+       // Recommendations logic
+function getRecommendations(risk) {
+    if (risk < 0.2) {
+        return {
+            category: "Low Risk",
+            interpretation: "Low risk of toxicity.",
+            uro: [
+                "1. Routine Surveillance Protocol: Establish a protocol for regular follow-ups that includes PSA tests and DRE every 12 months.",
+                "2. Patient Education: Provide patients with educational materials regarding prostate health.",
+                "3. Risk Assessment: Continuously assess patients' risk profiles during visits.",
+                "4. Communication: Maintain open communication channels with patients.",
+                "5. Support Resources: Recommend support groups and resources."
+            ],
+            patient: [
+                "1. Routine Monitoring: Continue with regular follow-ups, including PSA tests and DRE.",
+                "2. Healthy Lifestyle: Maintain a balanced diet rich in fruits and vegetables.",
+                "3. Limit Alcohol: Reduce alcohol intake and avoid smoking.",
+                "4. Stay Active: Engage in regular physical activity.",
+                "5. Ask Questions: Be proactive in discussing any concerns."
+            ]
+        };
+    } else if (risk < 0.5) {
+        return {
+            category: "Moderate Risk",
+            interpretation: "Moderate risk of toxicity.",
+            uro: [
+                "1. Enhanced Monitoring: Schedule more frequent visits, ideally every 6 months, to monitor PSA levels.",
+                "2. Lifestyle Counseling: Discuss lifestyle modifications that can lower risk, including diet and exercise.",
+                "3. Consider Further Testing: Evaluate the need for additional tests such as MRI or biopsy based on PSA trends.",
+                "4. Patient Education: Provide tailored education based on individual risk factors.",
+                "5. Discuss Treatment Options: Engage in discussions regarding treatment options based on individual circumstances."
+            ],
+            patient: [
+                "1. Regular Follow-Ups: Ensure to attend all scheduled appointments for monitoring.",
+                "2. Diet and Exercise: Incorporate a healthy diet and regular exercise into your routine.",
+                "3. Discuss Changes: Report any changes in health or new symptoms to your healthcare provider.",
+                "4. Be Proactive: Stay informed about prostate health and treatment options.",
+                "5. Ask Questions: Don't hesitate to ask your healthcare provider any questions or express concerns."
+            ]
+        };
+    } else {
+        return {
+            category: "High Risk",
+            interpretation: "High risk of toxicity.",
+            uro: [
+                "1. Aggressive Monitoring: Schedule follow-ups every 3 months for close monitoring of PSA levels.",
+                "2. Discuss Treatment Plans: Immediate discussions regarding potential treatment options, including surgery, radiation, or hormonal therapy.",
+                "3. Multidisciplinary Approach: Consider referral to a multidisciplinary team for comprehensive care.",
+                "4. Patient Support: Provide information on mental health resources and support systems for patients.",
+                "5. Comprehensive Risk Assessment: Continuously assess other risk factors and adjust management plans accordingly."
+            ],
+            patient: [
+                "1. Attend All Appointments: Make sure to attend all scheduled follow-ups to monitor your health closely.",
+                "2. Open Communication: Discuss treatment options and any concerns with your healthcare provider.",
+                "3. Support Systems: Seek support from family, friends, or support groups.",
+                "4. Lifestyle Adjustments: Focus on a healthy lifestyle and adhere to your healthcare provider’s recommendations.",
+                "5. Stay Informed: Educate yourself about your condition and treatment options."
+            ]
+        };
+    }
+}
+
+// Event listener for prediction button
+document.getElementById("predict-button").addEventListener("click", function () {
+    // Collect all inputs
+    const inputs = {
+        comorbs: parseFloat(document.getElementById("comorbs").value),
+        age_cd: parseFloat(document.getElementById("age_cd").value),
+        eth_cd: parseFloat(document.getElementById("eth_cd").value),
+        ses: parseFloat(document.getElementById("ses").value),
+        act: parseFloat(document.getElementById("act").value),
+        trd: parseFloat(document.getElementById("trd").value),
+        weight: parseFloat(document.getElementById("weight").value),
+        height: parseFloat(document.getElementById("height").value),
+        bmi_cd: parseFloat(document.getElementById("bmi_cd").value),
+        hpsa_cd: parseFloat(document.getElementById("hpsa_cd").value),
+        fmh: parseFloat(document.getElementById("fmh").value),
+        alc: parseFloat(document.getElementById("alc").value),
+        tbc: parseFloat(document.getElementById("tbc").value),
+        dre_l: parseFloat(document.getElementById("dre_l").value),
+        natg: parseFloat(document.getElementById("natg").value),
+        tmg: parseFloat(document.getElementById("tmg").value)
+    };
+
+
+  // Coefficients for logistic regression, updated to include new fields
+const coefficients = {
+    intercept: 2.357,
+    comorbs: -1.305,
+    age_cd: -0.518,
+    eth_cd: -0.05,
+    ses: -0.156,
+    act: 0.385,
+    trd: -0.074,
+    weight: 0.012,
+    height: 0.427,
+    bmi_cd: -0.059,
+    hpsa_cd: -0.272,
+    fmh: 0.2,       // Coefficient for family history
+    alc: -0.1,      // Coefficient for alcohol use
+    tbc: 0.15,      // Coefficient for tobacco use
+    dre_l: 0.5,     // Coefficient for DRE localized disease
+    natg: 0.08,     // Coefficient for number of adjuvant treatments
+    tmg: -0.05      // Coefficient for total number of treatments
+};
+
+// Function to calculate the risk
+function calculateRisk(inputs) {
+    // Logistic regression formula
+    const logOdds = coefficients.intercept +
+        coefficients.comorbs * inputs.comorbs +
+        coefficients.age_cd * inputs.age_cd +
+        coefficients.eth_cd * inputs.eth_cd +
+        coefficients.ses * inputs.ses +
+        coefficients.act * inputs.act +
+        coefficients.trd * inputs.trd +
+        coefficients.weight * inputs.weight +
+        coefficients.height * inputs.height +
+        coefficients.bmi_cd * inputs.bmi_cd +
+        coefficients.hpsa_cd * inputs.hpsa_cd +
+        coefficients.fmh * inputs.fmh +
+        coefficients.alc * inputs.alc +
+        coefficients.tbc * inputs.tbc +
+        coefficients.dre_l * inputs.dre_l +
+        coefficients.natg * inputs.natg +
+        coefficients.tmg * inputs.tmg;
+
+    // Convert log-odds to probability
+    const probability = 1 / (1 + Math.exp(-logOdds));
+    return probability;
+}
+
+ // Calculate risk
+    const risk = calculateRisk(inputs);
+
+
+    // Generate recommendations
+    const recommendations = getRecommendations(risk);
+
+    // Populate modal content
+    document.getElementById("risk-text").innerText = `Predicted Probability of Toxicity Risk: ${(risk * 100).toFixed(2)}% (${recommendations.category})`;
+    document.getElementById("interpretation-text").innerText = recommendations.interpretation;
+
+
+    // Display results
+    document.getElementById("output-container").style.display = "block";
+    document.getElementById("risk-text").innerText = `Predicted Probability of Toxicity Risk: ${(risk * 100).toFixed(2)}% (${recommendations.category})`;
+    document.getElementById("interpretation-text").innerText = recommendations.interpretation;
+     const modal = document.getElementById("result-modal");
+    modal.style.display = "block";
+
+
+    // Render recommendations
+    const uroList = document.getElementById("uro-recommendations");
+    const patientList = document.getElementById("patient-recommendations");
+
+    uroList.innerHTML = recommendations.uro.map(item => `<li>${item}</li>`).join("");
+    patientList.innerHTML = recommendations.patient.map(item => `<li>${item}</li>`).join("");
+});
+    // Event listener to close modal
+document.getElementById("close-modal").addEventListener("click", function () {
+    const modal = document.getElementById("result-modal");
+    modal.style.display = "none";
+});
+
+// Close modal on outside click
+window.addEventListener("click", function (event) {
+    const modal = document.getElementById("result-modal");
+    if (event.target === modal) {
+        modal.style.display = "none";
+    }
+});
+function calculateBMI() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const bmiDropdown = document.getElementById('bmi_cd');
+            const bmiResult = document.getElementById('bmi-result');
+	    
+
+            // Validate input
+            if (!weight || !height || weight <= 0 || height <= 0) {
+                bmiResult.textContent = "Invalid input.";
+                bmiDropdown.value = ""; // Reset dropdown if invalid
+                return;
+            }
+
+            // Calculate BMI
+            const bmi = weight / (height ** 2);
+            let interpretation = "";
+
+            // Determine category and update dropdown
+            if (bmi < 18.5) {
+                bmiDropdown.value = "1"; // Underweight
+                interpretation = "Underweight";
+            } else if (bmi < 24.9) {
+                bmiDropdown.value = "2"; // Normal
+                interpretation = "Normal";
+            } else if (bmi < 29.9) {
+                bmiDropdown.value = "3"; // Overweight
+                interpretation = "Overweight";
+            } else {
+                bmiDropdown.value = "4"; // Obese
+                interpretation = "Obese";
+            }
+
+            // Update BMI result and interpretation
+            bmiResult.textContent = `${bmi.toFixed(1)} ${interpretation}`;
+        }
+
+        // Add event listeners for weight and height inputs
+        document.getElementById('weight').addEventListener('input', calculateBMI);
+        document.getElementById('height').addEventListener('input', calculateBMI);
+
+        // Initial calculation on page load
+        calculateBMI();
+    </script>
+</body>
+</html>
